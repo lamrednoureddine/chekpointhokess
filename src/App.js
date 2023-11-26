@@ -1,72 +1,97 @@
 // App.js
 import React, { useState } from 'react';
-import './App.css';
-import 'bootstrap/dist/css/bootstrap.min.css';
 import MovieList from './MovieList';
+import Filter from './Filter';
 
-function App() {
-  const [filters, setFilters] = useState({ title: '', rating: 0 });
-
-  const [newMovie, setNewMovie] = useState({ title: '', description: '', posterURL: '', rating: 0 });
+const App = () => {
   const [movies, setMovies] = useState([
-    // ... vos films existants ici
+    { title: 'Movie 1', description: 'Description 1', posterURL: '../movie1.jpeg', rating: 8 },
+    { title: 'Movie 2', description: 'Description 2',posterURL: '../movie2.jpeg', rating: 7 },
+    { title: 'Movie 3', description: 'Description 3', posterURL: '../mouvie3.jpeg', rating: 6 },
+    { title: 'Movie 4', description: 'Description 4', posterURL: '../mouvie4.jpeg', rating: 4 },
+    { title: 'Movie 5', description: 'Description 5', posterURL: '../mouvie5.jpeg', rating: 2 },
+    { title: 'Movie 6', description: 'Description 6', posterURL: '../mouvie6.jpeg', rating: 10 },
+    { title: 'Movie 7', description: 'Description 7', posterURL: '../mouvie7.jpeg', rating: 1 },
+    { title: 'Movie 8', description: 'Description 8', posterURL: '../mouvie8.jpeg', rating: 3 },
   ]);
 
+  const [filter, setFilter] = useState({ title: '', rating: '' });
 
-  const handleFilterChange = (event) => {
-    const { name, value } = event.target;
-    setFilters((prevFilters) => ({
-      ...prevFilters,
-      [name]: value,
-    }));
+  const handleFilterChange = (type, value) => {
+    setFilter({ ...filter, [type]: value });
   };
 
+  const filteredMovies = movies.filter(
+    (movie) =>
+      movie.title.toLowerCase().includes(filter.title.toLowerCase()) &&
+      (filter.rating === '' || movie.rating === parseFloat(filter.rating))
+  );
 
-  const handleAddMovie = () => {
-    // Ajoutez le nouveau film à la liste
-    setMovies((prevMovies) => [...prevMovies, newMovie]);
+  const handleAddMovie = (newMovie) => {
+    setMovies([newMovie,...movies]);
+  };
+
+  const handleFormSubmit = (e) => {
+    e.preventDefault();
+
+    // Get form values
+    const title = e.target.title.value;
+    const description = e.target.description.value;
+    const posterURL = e.target.posterURL.value;
+    const rating = parseFloat(e.target.rating.value);
+
+    // Check if all fields are filled
+    if (title && description && posterURL && !isNaN(rating)) {
+      const newMovie = { title, description, posterURL, rating };
+      handleAddMovie(newMovie);
+
+      // Reset form fields
+      e.target.reset();
+    } else {
+      alert('Please fill in all fields correctly.');
+    }
+  };
+
+  const style1 ={
+     
+      display: "bloc",
+      
+      justifyContent: "spaceBetween",
+      alignItems: "center",
+      margin :"50px"
+    }
     
-    // Effacez le formulaire après l'ajout
-    setNewMovie({ title: '', description: '', posterURL: '', rating: 0 });
-  };
-
-
-
 
   return (
-    <div className='App'>
-      <h1>Liste des films</h1>
-      
-       <input type="text" name="title" value={filters.title} onChange={handleFilterChange} placeholder="Filtrer par titre" /> 
-      <input type="number" name="rating" value={filters.rating} onChange={handleFilterChange} placeholder="Filtrer par note" /> 
-
-    
-     
-
- {/* Ajoutez un formulaire pour ajouter un nouveau film */}
- <div>
-        <h2>Ajouter un nouveau film</h2>
-        <label>Titre:
-          <input type="text" name="title" value={newMovie.title} onChange={(e) => setNewMovie({ ...newMovie, title: e.target.value })} />
+    <div >
+      <div style={style1}>
+      <h1>liste mouvies</h1>
+      <Filter onFilterChange={handleFilterChange} />
+      <MovieList movies={filteredMovies} />
+       <di>
+       <form onSubmit={handleFormSubmit} >
+        <label>
+          Title:
+          <input type="text" name="title" required />
         </label>
-        <label>Description:
-          <input type="text" name="description" value={newMovie.description} onChange={(e) => setNewMovie({ ...newMovie, description: e.target.value })} />
+        <label>
+          Description:
+          <textarea name="description" required />
         </label>
-        <label>URL de l'affiche:
-          <input type="text" name="posterURL" value={newMovie.posterURL} onChange={(e) => setNewMovie({ ...newMovie, posterURL: e.target.value })} />
+        <label>
+          Poster URL:
+          <input type="text" name="posterURL" required />
         </label>
-        <label>Note:
-          <input type="number" name="rating" value={newMovie.rating} onChange={(e) => setNewMovie({ ...newMovie, rating: e.target.value })} />
+        <label>
+          Rating:
+          <input type="number" name="rating" step="0.1" required />
         </label>
-        <button onClick={handleAddMovie}>Ajouter</button>
+        <button type="submit">Add Movie</button>
+      </form>
+      </di>
       </div>
-
-      {/* Passez les filtres et la liste de films au composant MovieList */}
-      <MovieList filters={filters} movies={movies} />
-
-
     </div>
   );
-}
+};
 
 export default App;
